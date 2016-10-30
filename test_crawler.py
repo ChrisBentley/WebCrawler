@@ -21,6 +21,9 @@ class TestCrawler(unittest.TestCase):
         url = 'http://www.test.com/foo'
         self.assertEqual(find_base_domain(url), 'www.test.com')
 
+    def test_create_site_map(self):
+        assert(True)
+
 
 if __name__ == '__main__':
     unittest.main()

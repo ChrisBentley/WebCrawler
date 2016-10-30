@@ -15,4 +15,11 @@ I decided that the site map generator function should also make sure the provide
 
 Now that I had a general outline of the program structure I created some simple unit test cases that were failing and began working on making them pass.
 
-(Ended up having to move the url checking and base domain finding into non-nested private functions to make unit testing easier.)
+(Ended up having to move the url checking and base domain finding into non-nested private functions to make unit testing easier.) - This also came in handy later on anyway.
+
+I next began the process of building the site map and found that I should abstract the downloading of the HTML data and extracting page links from the data into their own functions. I also created a small function to make sure a list has only unique entires.
+
+I found the logic of interating through a list while also adding to it slightly tricky (as it's best practice not to add to a list while you're iterating over it in Python). Calling unique on the list also causes the order to be randomised so that made it slightly trickier.
+
+Parsing the html for links ended up being easier than I expected by using BeautifulSoup and then it was just a case of catching a few outliers and making sure to not add them to the list of links.
+
