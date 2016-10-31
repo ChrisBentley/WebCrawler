@@ -8,6 +8,7 @@ Author: Chris Bentley
 """
 
 import argparse
+from urllib import robotparser
 from urllib.request import urlopen, HTTPError
 from urllib.parse import urlparse
 from werkzeug import urls
@@ -24,7 +25,11 @@ def create_site_map(url):
     links_visited = []
     base_domain = find_base_domain(url)
 
-    initial_page_links = extract_page_links(get_html_data(url), base_domain)
+    rp = robotparser.RobotFileParser()
+    rp.set_url('http://' + base_domain + '/robots.txt')
+    rp.read()
+
+    initial_page_links = extract_page_links(get_html_data(url), base_domain, rp)
 
     all_page_links = unique(initial_page_links)
 
@@ -34,7 +39,7 @@ def create_site_map(url):
 
         for link in new_page_links:
             if link not in links_visited:
-                all_page_links += extract_page_links(get_html_data(link), base_domain)
+                all_page_links += extract_page_links(get_html_data(link), base_domain, rp)
                 links_visited.append(link)
                 all_page_links = unique(all_page_links)
 
@@ -57,9 +62,9 @@ def unique(list_of_links):
 
 def get_html_data(url):
     """
-    Method to extract all the url links from html data
-    :param html_data: raw HTML from a website
-    :return: A list of safe links that were found in the html data
+    Method to get html data from a provided url
+    :param url: A url to download data from
+    :return: Raw html data downloaded from the url
     """
     print('Downloading HTML from - {}'.format(url))
     try:
@@ -78,11 +83,12 @@ def get_html_data(url):
     return html_data
 
 
-def extract_page_links(html_data, base_domain):
+def extract_page_links(html_data, base_domain, rp):
     """
     Method to extract all the url links from html data
     :param html_data: Raw HTML from a website
     :param base_domain: The base domain to check links against
+    :param rp: Initialised robotparser object
     :return: A list of safe links that were found in the html data
     """
     page_links = []
@@ -101,6 +107,9 @@ def extract_page_links(html_data, base_domain):
         if len(link_url) < 1:
             continue
         if 'mailto' in link_url:
+            continue
+        if rp.can_fetch('*', link_url) is False:
+            # print('This URL is not allowed - {}'.format(link_url))
             continue
 
         if link_url[0] == '/':
