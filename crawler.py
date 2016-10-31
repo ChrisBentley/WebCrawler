@@ -26,6 +26,7 @@ def create_site_map(url):
     links_visited = []
     base_domain = find_base_domain(url)
 
+    # Setup a RobotFileParser object for checking if links can be crawled
     rp = robotparser.RobotFileParser()
     rp.set_url('http://' + base_domain + '/robots.txt')
     rp.read()

@@ -26,3 +26,11 @@ Parsing the html for links ended up being easier than I expected by using Beauti
 I found that there is a robots.txt file that should be respected where possible. I wrote my own methods to download and parse this robots.txt file but then found that Python had it's own class for parsing it in the standard library so I used that class instead. (wasted some time there!)
 
 I then worked on extracting the static assets from the html. I found that I needed to extract images, js scripts and links with certain relative urls.
+
+I improved the printing of the site_map using prettyprint.
+
+I then worked on improving the test suite for coverage of every function.
+
+There is a known issue with the final test of test_create_site_map due to the way that unique() returns the list in a random order the diff may fail occasionally.
+
+Mocking out some of the calls was quite complicated in some cases.
