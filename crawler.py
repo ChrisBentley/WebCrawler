@@ -29,6 +29,7 @@ def create_site_map(url):
     rp.set_url('http://' + base_domain + '/robots.txt')
     rp.read()
 
+    # Get an initial set of links to explore from the base domain of the provided url
     initial_page_links = extract_page_links(get_html_data(url), base_domain, rp)
 
     all_page_links = unique(initial_page_links)
@@ -39,12 +40,19 @@ def create_site_map(url):
 
         for link in new_page_links:
             if link not in links_visited:
-                all_page_links += extract_page_links(get_html_data(link), base_domain, rp)
                 links_visited.append(link)
+                html_data = get_html_data(link)
+
+                static_assets = extract_static_assets(html_data)
+                # site_map.append({'url': link, 'assets': static_assets})
+
+                newly_discovered_links = extract_page_links(html_data, base_domain, rp)
+
+                all_page_links += newly_discovered_links
                 all_page_links = unique(all_page_links)
 
-                print('Unique Pages Found = {}'.format(len(all_page_links)))
-                print('Unique Pages Visited = {}'.format(len(links_visited)))
+                print('Unique URLs Found = {}'.format(len(all_page_links)))
+                print('Unique URLs Visited = {}'.format(len(links_visited)))
 
     print(all_page_links)
 
@@ -109,7 +117,6 @@ def extract_page_links(html_data, base_domain, rp):
         if 'mailto' in link_url:
             continue
         if rp.can_fetch('*', link_url) is False:
-            # print('This URL is not allowed - {}'.format(link_url))
             continue
 
         if link_url[0] == '/':
@@ -121,13 +128,41 @@ def extract_page_links(html_data, base_domain, rp):
     return page_links
 
 
-def extract_static_assets(url):
+def extract_static_assets(html_data):
     """
     Method to extract all the static assets for a given url
     :param url: The url containing the domain to create a site map of
     :return: Array containing a list of static assets
     """
     static_assets = []
+
+    if html_data is None:
+        return static_assets
+
+    soup = BeautifulSoup(html_data, 'html.parser')
+
+    # Find all static images
+    images = soup.find_all('img')
+    for image in images:
+        static_assets.append(image.get('src'))
+
+    # Fina all static scripts
+    scripts = soup.find_all('script')
+    for script in scripts:
+        if script.get('src') is not None:
+            static_assets.append(script.get('src'))
+
+    # find all static links
+    links = soup.find_all('link')
+    for link in links:
+        if 'stylesheet' in link.get('rel'):
+            static_assets.append(link.get('href'))
+            continue
+        if 'icon' in link.get('rel'):
+            static_assets.append(link.get('href'))
+            continue
+        if 'apple-touch-icon-precomposed' in link.get('rel'):
+            static_assets.append(link.get('href'))
 
     return static_assets
 
