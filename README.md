@@ -1,6 +1,21 @@
 # WebCrawler
 A web crawler that creates a site map and displays static assets
 
+Developed using Python 3.5.5
+
+Install the requirements using
+
+    $ pip install -U -r requirements.txt
+
+Run the crawler using using the following:
+
+    $ ./crawler.py -u "https://gocardless.com"
+
+Run the tests using:
+
+    $ ./test_crawler.py
+
+
 
 Design Decisions:
 
@@ -12,6 +27,23 @@ So I created a program that had a main function that would accept a url as a com
 
 I decided that the site map generator function should also make sure the provided url was safe and should use the base domain of the provided url as a starting point every time. So I added two private subfunctions to perform these tasks.
 
+
+
+Known Issues:
+
+There is a known issue with the final test (test_create_site_map) due to the way that unique() returns the list in a random order the diff may fail occasionally.
+
+
+
+Areas for improvement:
+
+1. create_site_map is a good candidate for breaking up into a smaller function as it was difficult to test.
+2. Look into threading to improve the performance
+
+
+
+
+Worklog:
 
 Now that I had a general outline of the program structure I created some simple unit test cases that were failing and began working on making them pass.
 
@@ -30,7 +62,5 @@ I then worked on extracting the static assets from the html. I found that I need
 I improved the printing of the site_map using prettyprint.
 
 I then worked on improving the test suite for coverage of every function.
-
-There is a known issue with the final test of test_create_site_map due to the way that unique() returns the list in a random order the diff may fail occasionally.
 
 Mocking out some of the calls was quite complicated in some cases.
