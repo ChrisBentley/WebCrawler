@@ -144,7 +144,8 @@ def extract_static_assets(html_data):
     # Find all static images
     images = soup.find_all('img')
     for image in images:
-        static_assets.append(image.get('src'))
+        if image.get('src') is not None:
+            static_assets.append(image.get('src'))
 
     # Fina all static scripts
     scripts = soup.find_all('script')
