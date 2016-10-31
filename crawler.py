@@ -8,6 +8,7 @@ Author: Chris Bentley
 """
 
 import argparse
+import pprint
 from urllib import robotparser
 from urllib.request import urlopen, HTTPError
 from urllib.parse import urlparse
@@ -44,7 +45,7 @@ def create_site_map(url):
                 html_data = get_html_data(link)
 
                 static_assets = extract_static_assets(html_data)
-                # site_map.append({'url': link, 'assets': static_assets})
+                site_map[link] = static_assets
 
                 newly_discovered_links = extract_page_links(html_data, base_domain, rp)
 
@@ -53,8 +54,6 @@ def create_site_map(url):
 
                 print('Unique URLs Found = {}'.format(len(all_page_links)))
                 print('Unique URLs Visited = {}'.format(len(links_visited)))
-
-    print(all_page_links)
 
     return site_map
 
@@ -120,7 +119,7 @@ def extract_page_links(html_data, base_domain, rp):
             continue
 
         if link_url[0] == '/':
-            page_links.append(make_url_safe('www.gocardless.com' + link_url))
+            page_links.append(make_url_safe(base_domain + link_url))
         else:
             if base_domain in find_base_domain(link_url):
                 page_links.append(link.get('href'))
@@ -131,8 +130,8 @@ def extract_page_links(html_data, base_domain, rp):
 def extract_static_assets(html_data):
     """
     Method to extract all the static assets for a given url
-    :param url: The url containing the domain to create a site map of
-    :return: Array containing a list of static assets
+    :param html_data: Raw HTML from a website
+    :return: Array containing a list of static assets found in the html data
     """
     static_assets = []
 
@@ -210,15 +209,7 @@ def main():
 
     site_map = create_site_map(safe_url)
 
-    # print(site_map)
-
-    # for item in site_map:
-    #     if item.url:
-    #         site_map[item][assets] = extract_static_assets(item.url)
-    #     for subdomain in item.subdomain:
-    #         site_map[subdomain][assets] = extract_static_assets(subdomain.url)
-
-    # print(site_map)
+    pprint.pprint(site_map)
 
 
 (__name__ == '__main__' and main())
